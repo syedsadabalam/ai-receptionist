@@ -1,0 +1,529 @@
+FULL SYSTEM ARCHITECTURE
+AI Dental Receptionist Platform
+1. HIGH-LEVEL ARCHITECTURE
+                    ┌──────────────────────┐
+                    │     PATIENT CALLER   │
+                    └──────────┬───────────┘
+                               │
+                               ▼
+                    ┌──────────────────────┐
+                    │      TWILIO SIP      │
+                    │   Phone Infrastructure│
+                    └──────────┬───────────┘
+                               │
+                               ▼
+                    ┌──────────────────────┐
+                    │         VAPI         │
+                    │ Realtime Voice Layer │
+                    └──────────┬───────────┘
+                               │
+                               ▼
+                    ┌──────────────────────┐
+                    │ CONVERSATION ENGINE  │
+                    │ Intent + State Mgmt  │
+                    └──────────┬───────────┘
+                               │
+                ┌──────────────┼──────────────┐
+                ▼              ▼              ▼
+      ┌────────────────┐ ┌──────────────┐ ┌────────────────┐
+      │ TOOL EXECUTOR  │ │ FAQ ENGINE   │ │ ESCALATION SYS │
+      └───────┬────────┘ └──────┬───────┘ └──────┬─────────┘
+              │                  │                 │
+              ▼                  ▼                 ▼
+      ┌──────────────────────────────────────────────────┐
+      │              FASTAPI BACKEND                     │
+      │ Scheduling + APIs + Auth + Business Logic        │
+      └──────────────────────┬───────────────────────────┘
+                             │
+         ┌───────────────────┼───────────────────┐
+         ▼                   ▼                   ▼
+┌────────────────┐ ┌────────────────┐ ┌────────────────┐
+│ PostgreSQL DB  │ │ Redis + Celery │ │ Google Calendar│
+│ Source of Truth│ │ Async Workers  │ │ Sync Layer     │
+└────────────────┘ └────────────────┘ └────────────────┘
+                             │
+                             ▼
+                  ┌────────────────────┐
+                  │  NEXT.JS DASHBOARD │
+                  │ Admin + Analytics  │
+                  └────────────────────┘
+2. CORE ARCHITECTURE PHILOSOPHY
+
+Your platform should follow:
+
+MODULAR MONOLITH
+
+NOT microservices initially.
+
+Reason:
+
+solo founder
+fast iteration
+easier debugging
+lower infra complexity
+faster deployment
+easier AI workflow management
+
+Most startups destroy themselves with premature microservices.
+
+3. CORE SYSTEM COMPONENTS
+A. TELEPHONY LAYER
+Stack
+Twilio
+SIP + Voice APIs
+Responsibilities
+inbound calls
+phone numbers
+call routing
+transfers
+recording hooks
+Call Flow
+Patient dials clinic number
+        ↓
+Twilio receives call
+        ↓
+Twilio routes audio to Vapi
+B. REALTIME VOICE LAYER
+Stack
+Vapi
+OpenAI Realtime APIs
+Responsibilities
+speech-to-text
+text-to-speech
+realtime audio streaming
+interruption detection
+multilingual support
+CRITICAL REQUIREMENT
+
+Low latency.
+
+Target:
+
+< 2 second total conversational latency
+
+If latency becomes high:
+the product feels broken instantly.
+
+C. CONVERSATION ORCHESTRATOR
+
+THIS is the brain.
+
+NOT GPT itself.
+
+Responsibilities
+Intent Detection
+
+Detect:
+
+booking
+cancellation
+rescheduling
+FAQs
+emergencies
+transfer requests
+State Management
+
+Track:
+
+caller identity
+selected provider
+selected service
+booking progress
+pending confirmations
+Workflow Management
+
+Control:
+
+conversation flow
+state transitions
+recovery handling
+escalation logic
+IMPORTANT
+
+Use:
+
+deterministic workflow state machines
+
+NOT giant prompts.
+
+Example Booking State Machine
+GREETING
+   ↓
+INTENT_DETECTION
+   ↓
+PATIENT_IDENTIFICATION
+   ↓
+SERVICE_SELECTION
+   ↓
+DATE_SELECTION
+   ↓
+AVAILABILITY_LOOKUP
+   ↓
+CONFIRMATION
+   ↓
+BOOKING_COMPLETE
+D. TOOL EXECUTION LAYER
+
+VERY important.
+
+The AI NEVER directly touches database.
+
+AI calls tools only
+
+Example:
+
+check_availability()
+create_appointment()
+cancel_appointment()
+faq_lookup()
+transfer_call()
+Why?
+
+Because:
+
+prevents hallucinations
+ensures deterministic behavior
+protects data integrity
+easier debugging
+Tool Execution Flow
+Caller request
+      ↓
+AI decides required tool
+      ↓
+Tool executor validates request
+      ↓
+Backend business logic runs
+      ↓
+Structured response returned
+      ↓
+AI responds naturally
+E. FASTAPI BACKEND
+
+This is your core backend system.
+
+Responsibilities
+Scheduling Engine
+availability calculation
+conflict prevention
+booking validation
+provider schedules
+Business Logic
+appointment rules
+cancellation rules
+emergency handling
+APIs
+dashboard APIs
+tool APIs
+auth APIs
+Multi-Tenant Logic
+clinic isolation
+RBAC
+tenant-safe queries
+F. SCHEDULING ENGINE
+
+MOST IMPORTANT COMPONENT.
+
+More important than AI.
+
+Responsibilities
+Availability Calculation
+
+Must consider:
+
+provider schedule
+service duration
+buffers
+blocked slots
+clinic hours
+emergency reservations
+Conflict Prevention
+
+Prevent:
+
+overlapping appointments
+race conditions
+double booking
+Scheduling Transaction Flow
+BEGIN TRANSACTION
+        ↓
+Lock scheduling window
+        ↓
+Check overlap conflicts
+        ↓
+Create appointment
+        ↓
+Commit transaction
+G. POSTGRESQL DATABASE
+Stack
+PostgreSQL
+Why PostgreSQL?
+
+Because you need:
+
+transactional consistency
+relational scheduling logic
+strong indexing
+auditability
+concurrency safety
+
+MongoDB would be a mistake here.
+
+Core Tables
+clinics
+users
+providers
+provider_schedules
+patients
+services
+appointments
+conversations
+transcripts
+notifications
+audit_logs
+faq_entries
+callback_requests
+H. REDIS + CELERY
+Responsibilities
+
+Async processing:
+
+calendar sync
+retries
+notifications
+transcript processing
+monitoring
+Why Async?
+
+Because realtime voice cannot wait for:
+
+slow APIs
+retries
+sync failures
+Example Flow
+Appointment created
+        ↓
+Sync job added to queue
+        ↓
+Celery worker processes sync
+        ↓
+Google Calendar updated
+I. GOOGLE CALENDAR SYNC
+Responsibilities
+create events
+update events
+delete events
+IMPORTANT
+
+Google Calendar is:
+
+NOT source of truth
+
+Internal scheduler is source of truth.
+
+Very important architectural decision.
+
+J. NEXT.JS DASHBOARD
+Stack
+Next.js
+TailwindCSS
+shadcn/ui
+Responsibilities
+Appointment Management
+view appointments
+reschedule
+cancellations
+Transcript Review
+call logs
+AI transcripts
+replay calls
+Provider Management
+schedules
+blocked dates
+availability
+AI Settings
+prompts
+escalation settings
+emergency settings
+K. AUTHENTICATION SYSTEM
+Recommended
+JWT auth
+refresh tokens
+RBAC
+Roles
+clinic_admin
+receptionist
+provider
+super_admin
+L. MULTI-TENANT ARCHITECTURE
+
+VERY important.
+
+Every query must include:
+
+WHERE clinic_id = :clinic_id
+Tenant Isolation Applies To
+appointments
+transcripts
+analytics
+providers
+settings
+M. MONITORING & LOGGING
+Need Monitoring For
+AI latency
+failed calls
+sync failures
+scheduling conflicts
+API failures
+Need Audit Logs For
+bookings
+cancellations
+escalations
+admin actions
+4. DEPLOYMENT ARCHITECTURE
+INITIAL DEPLOYMENT
+Recommended
+Backend
+Railway
+Database
+Railway PostgreSQL
+Redis
+Railway Redis
+Frontend
+Vercel
+FUTURE SCALE
+
+Move later to:
+
+AWS ECS
+RDS
+Elasticache
+Load balancers
+
+NOT now.
+
+5. RECOMMENDED PROJECT STRUCTURE
+BACKEND
+backend/
+│
+├── app/
+│   ├── api/
+│   ├── auth/
+│   ├── appointments/
+│   ├── conversations/
+│   ├── providers/
+│   ├── patients/
+│   ├── ai/
+│   ├── scheduling/
+│   ├── integrations/
+│   ├── notifications/
+│   ├── database/
+│   ├── core/
+│   └── workers/
+│
+├── alembic/
+├── tests/
+└── requirements.txt
+FRONTEND
+frontend/
+│
+├── app/
+├── components/
+├── lib/
+├── hooks/
+├── services/
+├── store/
+└── styles/
+6. REALTIME CALL FLOW
+COMPLETE FLOW
+Patient calls
+      ↓
+Twilio receives call
+      ↓
+Vapi streams audio
+      ↓
+Speech-to-text
+      ↓
+Conversation orchestrator
+      ↓
+Intent detection
+      ↓
+Tool execution
+      ↓
+Scheduling validation
+      ↓
+Appointment created
+      ↓
+AI responds
+      ↓
+Google Calendar sync queued
+7. MOST IMPORTANT ENGINEERING RULES
+RULE 1
+
+AI never modifies database directly.
+
+RULE 2
+
+Scheduling engine is source of truth.
+
+RULE 3
+
+Use transactional scheduling.
+
+RULE 4
+
+Escalate uncertainty.
+
+RULE 5
+
+Keep latency extremely low.
+
+RULE 6
+
+Use modular monolith initially.
+
+RULE 7
+
+Avoid premature scalability complexity.
+
+8. WHAT WILL ACTUALLY BE HARD
+
+Not GPT.
+
+Not UI.
+
+THESE ARE THE HARD PARTS:
+1. Scheduling Reliability
+
+Preventing conflicts safely.
+
+2. Realtime Interruption Handling
+
+Human conversations are messy.
+
+3. State Recovery
+
+Maintaining workflow consistency.
+
+4. Low Latency
+
+Realtime voice systems are unforgiving.
+
+5. Tool Orchestration
+
+Reliable deterministic workflows.
+
+9. FIRST REAL MILESTONE
+
+Do NOT start with full dashboard.
+
+Start with:
+
+Call comes in
+      ↓
+AI answers
+      ↓
+AI books appointment
+      ↓
+Appointment stored
+      ↓
+Google Calendar sync works

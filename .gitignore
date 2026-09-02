@@ -1,0 +1,36 @@
+# Environment & Secrets (NEVER COMMIT)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+google-key.json
+
+# OS & IDE
+.DS_Store
+.vscode/
+.idea/
+
+# Backend / Python
+backend/venv/
+backend/.pytest_cache/
+backend/__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite
+*.sqlite3
+
+# Frontend / Node
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.turbo/
+frontend/tsconfig.tsbuildinfo
+node_modules/
+
+# Logs
+logs/
+*.log

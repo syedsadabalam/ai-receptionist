@@ -1,0 +1,2096 @@
+FUNCTIONAL REQUIREMENTS DOCUMENT (FRD)
+Project Name
+
+AI Dental Receptionist Platform for Canadian Clinics
+
+1. Introduction
+1.1 Purpose of Document
+
+This Functional Requirements Document (FRD) defines the detailed functional behavior, operational workflows, validation rules, and system interactions for the AI Dental Receptionist Platform.
+
+The purpose of this document is to:
+
+translate business requirements into engineering-ready specifications
+define exact functional workflows
+eliminate ambiguity during development
+establish deterministic system behavior
+define validation and operational logic
+
+This document serves as the primary execution reference for:
+
+backend development
+frontend development
+AI orchestration
+scheduling engine implementation
+QA testing
+workflow validation
+1.2 Product Overview
+
+The AI Dental Receptionist Platform is a real-time conversational voice system designed to automate inbound phone handling for Canadian dental clinics.
+
+The platform supports:
+
+AI voice conversations
+appointment booking
+appointment cancellation
+appointment rescheduling
+FAQ handling
+emergency escalation
+multilingual support
+scheduling synchronization
+
+The system integrates with:
+
+Google Calendar
+internal scheduling engine
+telephony infrastructure
+conversational AI services
+1.3 System Objectives
+
+The system is intended to:
+
+reduce missed calls
+automate repetitive receptionist workflows
+improve booking efficiency
+support after-hours operations
+reduce receptionist workload
+maintain scheduling accuracy
+provide bilingual patient communication
+1.4 In-Scope Features
+
+The following features are included in initial implementation scope:
+
+Voice Features
+inbound AI phone calls
+English/French language support
+interruption handling
+call transfer workflows
+Appointment Features
+booking
+cancellation
+rescheduling
+availability checking
+Administrative Features
+dashboard access
+transcript viewing
+clinic settings
+scheduling configuration
+Scheduling Features
+internal scheduling engine
+Google Calendar synchronization
+conflict prevention
+provider availability management
+1.5 Out-of-Scope Features
+
+The following features are excluded from initial implementation:
+
+outbound AI calls
+SMS communication
+WhatsApp integration
+insurance claim automation
+AI diagnosis
+prescription handling
+payment processing
+third-party dental software integrations
+mobile applications
+2. Functional Architecture
+2.1 High-Level System Flow
+Inbound Call
+   ↓
+Telephony Layer
+   ↓
+Voice Processing Layer
+   ↓
+Conversation Orchestrator
+   ↓
+Tool Execution Layer
+   ↓
+Scheduling Engine
+   ↓
+Database & Calendar Sync
+2.2 Core Functional Modules
+
+The platform consists of the following functional modules:
+
+Module 1 — Telephony Layer
+
+Handles:
+
+inbound calls
+call routing
+call transfer
+Module 2 — Voice Interaction Layer
+
+Handles:
+
+speech-to-text
+text-to-speech
+interruption detection
+Module 3 — Conversation Orchestrator
+
+Handles:
+
+intent recognition
+conversation state
+AI response generation
+tool invocation
+Module 4 — Scheduling Engine
+
+Handles:
+
+appointment logic
+availability validation
+booking conflicts
+provider schedules
+Module 5 — Integration Layer
+
+Handles:
+
+Google Calendar synchronization
+notification delivery
+external APIs
+Module 6 — Admin Dashboard
+
+Handles:
+
+clinic management
+transcript review
+analytics
+AI settings
+2.3 Architectural Principles
+AP-1
+
+The AI system shall not directly modify scheduling data without backend validation.
+
+AP-2
+
+All scheduling operations shall pass through deterministic scheduling logic.
+
+AP-3
+
+The internal scheduling engine shall operate as primary source of truth.
+
+AP-4
+
+AI-generated responses shall use backend-validated information only.
+
+AP-5
+
+Conversation workflows shall support recovery from interruptions and failures.
+
+3. User Roles & Permissions
+3.1 Patient / Caller
+Description
+
+External user interacting with the system through phone calls.
+
+Permissions
+
+Patients may:
+
+request appointments
+cancel appointments
+reschedule appointments
+ask FAQs
+request human transfer
+
+Patients shall not access dashboard systems.
+
+3.2 Clinic Administrator
+Description
+
+Primary clinic-level administrative user.
+
+Permissions
+
+Clinic administrators may:
+
+manage providers
+configure clinic settings
+manage services
+review transcripts
+view analytics
+configure emergency workflows
+configure AI behavior
+3.3 Reception Staff
+Description
+
+Operational clinic users handling escalated workflows.
+
+Permissions
+
+Reception staff may:
+
+review appointments
+manage schedules
+view transcripts
+handle callbacks
+process escalations
+
+Reception staff shall not access system-wide administrative settings.
+
+3.4 Dentist / Provider
+Description
+
+Clinic providers with schedule visibility access.
+
+Permissions
+
+Providers may:
+
+view schedules
+review appointments
+access appointment details
+
+Providers shall not modify system configurations.
+
+3.5 Super Admin
+Description
+
+Platform-level administrative role.
+
+Permissions
+
+Super admins may:
+
+onboard clinics
+manage tenants
+monitor platform health
+access operational logs
+manage subscriptions
+configure infrastructure settings
+4. Call Handling Functional Requirements
+4.1 Inbound Call Reception
+Functional Description
+
+The system shall automatically answer inbound clinic phone calls.
+
+Functional Requirements
+CH-1
+
+The system shall answer inbound calls automatically.
+
+CH-2
+
+Configurable greeting messages shall play after call acceptance.
+
+CH-3
+
+Greeting configuration shall support:
+
+clinic name
+business hours messaging
+language-specific greetings
+CH-4
+
+The system shall initialize conversation state immediately after greeting completion.
+
+4.2 Speech Processing
+CH-5
+
+The system shall convert caller speech into structured text.
+
+CH-6
+
+The system shall support real-time speech streaming.
+
+CH-7
+
+The system shall support noisy-call tolerance.
+
+CH-8
+
+The system shall support interruption detection during AI speech playback.
+
+CH-9
+
+The AI shall stop speaking immediately when interruption is detected.
+
+4.3 Language Detection
+CH-10
+
+The system shall detect caller language automatically.
+
+CH-11
+
+Supported languages:
+
+English
+French
+CH-12
+
+The system shall maintain language consistency throughout conversation session.
+
+4.4 Intent Detection
+CH-13
+
+The conversation engine shall classify caller intent.
+
+Supported Initial Intents
+appointment booking
+rescheduling
+cancellation
+FAQ inquiry
+emergency request
+transfer request
+CH-14
+
+Intent classification shall support conversational phrasing variations.
+
+CH-15
+
+The system shall support intent switching during active calls.
+
+Example:
+
+Booking request → insurance question → return to booking
+4.5 Conversation State Management
+CH-16
+
+The system shall maintain persistent conversation state during calls.
+
+CH-17
+
+Conversation state shall track:
+
+caller identity
+active workflow
+selected service
+preferred provider
+selected appointment slot
+pending confirmations
+CH-18
+
+The system shall recover conversation state after interruptions.
+
+CH-19
+
+Conversation state shall expire after call termination.
+
+4.6 Human Transfer Workflows
+CH-20
+
+The caller may request human transfer at any point.
+
+CH-21
+
+The AI shall not block human transfer requests.
+
+CH-22
+
+If staff unavailable:
+
+callback request shall be created
+OR
+voicemail routing initiated
+
+depending on clinic configuration.
+
+4.7 Failure Recovery
+CH-23
+
+The system shall detect repeated low-confidence responses.
+
+CH-24
+
+Repeated misunderstandings shall trigger escalation workflows.
+
+CH-25
+
+The AI shall acknowledge misunderstanding before escalation.
+
+Example:
+
+“I’m sorry, I may have misunderstood. Let me connect you with the clinic staff.”
+
+5. Appointment Booking Functional Requirements
+5.1 Appointment Booking Overview
+
+The system shall support conversational appointment booking workflows through AI voice interaction.
+
+The booking system shall support:
+
+new patients
+existing patients
+provider-specific booking
+service-specific booking
+multi-service appointments
+5.2 Booking Workflow Initialization
+AB-1
+
+The AI shall identify booking intent from conversational input.
+
+AB-2
+
+The AI shall determine whether caller is:
+
+new patient
+OR
+existing patient
+AB-3
+
+Existing patient lookup shall use:
+
+caller phone number
+patient name confirmation
+5.3 Patient Information Collection
+AB-4
+
+The system shall collect required patient information before booking confirmation.
+
+Required Fields
+full name
+phone number
+appointment type
+preferred date/time
+Optional Fields
+email address
+preferred provider
+AB-5
+
+The AI shall validate required information completeness before proceeding.
+
+AB-6
+
+Invalid or incomplete patient information shall trigger clarification workflows.
+
+5.4 Service Selection
+AB-7
+
+The AI shall identify requested appointment service.
+
+Supported Service Examples
+cleaning
+consultation
+whitening
+root canal consultation
+AB-8
+
+Each service shall map to configurable scheduling rules.
+
+AB-9
+
+Multi-service requests shall trigger combined duration calculations.
+
+5.5 Availability Checking
+AB-10
+
+Availability requests shall route through scheduling engine validation.
+
+AB-11
+
+The AI shall never generate appointment availability independently.
+
+AB-12
+
+Availability validation shall consider:
+
+provider schedule
+service duration
+blocked slots
+clinic hours
+appointment buffers
+AB-13
+
+The scheduling engine shall return available slots in structured format.
+
+5.6 Slot Selection
+AB-14
+
+The AI shall present validated appointment options to callers.
+
+AB-15
+
+The caller shall confirm selected appointment slot before booking execution.
+
+AB-16
+
+Unavailable slot selection shall trigger alternative slot workflow.
+
+5.7 Appointment Creation
+AB-17
+
+Confirmed appointments shall create records within internal scheduling system.
+
+AB-18
+
+Appointments shall synchronize with Google Calendar when enabled.
+
+AB-19
+
+Appointment creation shall use transactional validation to prevent conflicts.
+
+AB-20
+
+Failed booking operations shall rollback incomplete scheduling changes.
+
+5.8 Booking Confirmation
+AB-21
+
+The AI shall verbally confirm successful appointment creation.
+
+AB-22
+
+Confirmation shall include:
+
+appointment date
+appointment time
+provider name
+clinic location
+AB-23
+
+Booking confirmation events shall generate operational logs.
+
+5.9 Booking Failure Handling
+AB-24
+
+Booking failures shall trigger retry or escalation workflows.
+
+AB-25
+
+The AI shall not falsely confirm failed bookings.
+
+AB-26
+
+Scheduling conflicts detected during booking shall invalidate pending booking process.
+
+6. Appointment Rescheduling Functional Requirements
+6.1 Rescheduling Overview
+
+The platform shall support conversational rescheduling workflows for existing appointments.
+
+The system shall:
+
+identify existing appointments
+validate new availability
+update schedules safely
+synchronize changes across systems
+6.2 Patient Verification
+AR-1
+
+The system shall identify existing patients before appointment modification.
+
+AR-2
+
+Patient identification methods may include:
+
+caller phone number
+patient name confirmation
+AR-3
+
+If multiple patients match the same phone number, the AI shall request clarification.
+
+6.3 Appointment Retrieval
+AR-4
+
+The system shall retrieve active upcoming appointments associated with patient record.
+
+AR-5
+
+The AI shall verbally summarize retrievable appointments when multiple appointments exist.
+
+AR-6
+
+Appointments that are:
+
+completed
+cancelled
+expired
+
+shall not appear in active modification workflows.
+
+6.4 Reschedule Request Handling
+AR-7
+
+The AI shall collect preferred replacement date/time.
+
+AR-8
+
+The AI shall support conversational changes during slot selection.
+
+Example:
+
+“Actually Friday afternoon works better.”
+AR-9
+
+The scheduling engine shall validate:
+
+provider availability
+clinic hours
+service duration
+scheduling restrictions
+
+before confirming replacement slots.
+
+6.5 Appointment Update Execution
+AR-10
+
+The original appointment shall remain unchanged until replacement slot confirmation completes successfully.
+
+AR-11
+
+The system shall prevent schedule conflicts during update operations.
+
+AR-12
+
+Successful rescheduling shall:
+
+update internal scheduler
+synchronize Google Calendar
+generate audit logs
+6.6 Rescheduling Restrictions
+AR-13
+
+The system shall support configurable rescheduling policies.
+
+Example Restrictions
+minimum notice periods
+same-day restrictions
+provider-specific limitations
+AR-14
+
+Restricted reschedule attempts shall trigger policy explanation responses.
+
+6.7 Reschedule Failure Handling
+AR-15
+
+Failed rescheduling attempts shall preserve original appointment data.
+
+AR-16
+
+Synchronization failures shall trigger retry workflows.
+
+AR-17
+
+The AI shall not confirm unsuccessful rescheduling operations.
+
+7. Appointment Cancellation Functional Requirements
+7.1 Cancellation Overview
+
+The system shall support conversational appointment cancellation workflows.
+
+7.2 Appointment Identification
+AC-1
+
+The system shall identify appointments before cancellation execution.
+
+AC-2
+
+The AI shall summarize appointment details before confirmation.
+
+7.3 Cancellation Confirmation
+AC-3
+
+The AI shall request explicit cancellation confirmation before execution.
+
+AC-4
+
+Cancellation confirmation shall include:
+
+appointment date
+provider
+service type
+7.4 Cancellation Execution
+AC-5
+
+Confirmed cancellations shall update:
+
+internal scheduler
+synchronized calendar systems
+AC-6
+
+Cancellation events shall generate operational audit logs.
+
+7.5 Cancellation Restrictions
+AC-7
+
+The system shall support configurable cancellation policies.
+
+Example Policies
+late cancellation rules
+cancellation fees
+minimum notice requirements
+AC-8
+
+Policy-restricted cancellations shall trigger policy notification workflows.
+
+7.6 Post-Cancellation Workflow
+AC-9
+
+The AI may offer rescheduling after successful cancellation.
+
+AC-10
+
+Cancelled appointments shall no longer appear as active appointments.
+
+7.7 Cancellation Failure Handling
+AC-11
+
+Failed cancellation attempts shall preserve original appointment state.
+
+AC-12
+
+The AI shall not falsely confirm cancellations.
+
+8. FAQ & Knowledge Base Functional Requirements
+8.1 FAQ System Overview
+
+The platform shall support conversational FAQ retrieval using clinic-configured knowledge base content.
+
+8.2 Supported FAQ Categories
+FAQ-1
+
+The system shall support operational FAQs including:
+
+clinic hours
+location
+parking
+accepted insurance
+payment methods
+available services
+emergency instructions
+8.3 Knowledge Base Management
+FAQ-2
+
+Clinic administrators shall manage FAQ content through dashboard interface.
+
+FAQ-3
+
+Knowledge base entries shall support:
+
+question category
+answer content
+language variants
+FAQ-4
+
+FAQ content shall support both:
+
+English
+French
+8.4 FAQ Retrieval Behavior
+FAQ-5
+
+The AI shall retrieve FAQ responses using semantic intent matching.
+
+FAQ-6
+
+FAQ answers shall remain concise during voice conversations.
+
+FAQ-7
+
+The AI shall not fabricate unsupported FAQ information.
+
+FAQ-8
+
+Unknown FAQ requests shall trigger:
+
+fallback responses
+OR
+escalation workflows
+8.5 Insurance FAQ Restrictions
+FAQ-9
+
+The AI shall not guarantee insurance coverage approval.
+
+FAQ-10
+
+Insurance-related responses shall clarify that coverage depends on patient-specific plans.
+
+8.6 FAQ-to-Booking Transition
+FAQ-11
+
+The AI may transition FAQ conversations into booking workflows.
+
+Example:
+
+“We do offer whitening services. Would you like to schedule a consultation?”
+9. Emergency Handling Functional Requirements
+9.1 Emergency Workflow Overview
+
+The platform shall support emergency detection and escalation workflows.
+
+The AI shall prioritize:
+
+rapid escalation
+operational safety
+minimal conversational delay
+
+The AI shall not perform:
+
+diagnosis
+treatment recommendations
+prescription guidance
+9.2 Emergency Detection
+EH-1
+
+The system shall detect emergency-related conversational indicators.
+
+Example Triggers
+severe pain
+swelling
+bleeding
+broken tooth
+infection symptoms
+trauma
+EH-2
+
+Emergency detection shall support natural conversational phrasing variations.
+
+9.3 Emergency Classification
+EH-3
+
+The system shall classify detected emergencies according to clinic-configured urgency rules.
+
+EH-4
+
+Emergency classifications may include:
+
+urgent
+non-urgent
+unknown severity
+9.4 Emergency Escalation
+EH-5
+
+Urgent emergency scenarios shall trigger escalation workflows immediately.
+
+EH-6
+
+Escalation workflows may include:
+
+live call transfer
+emergency callback request
+clinic emergency instructions
+
+depending on clinic configuration.
+
+EH-7
+
+The AI shall minimize unnecessary conversational steps during emergencies.
+
+9.5 After-Hours Emergency Handling
+EH-8
+
+The system shall support emergency workflows outside clinic operating hours.
+
+EH-9
+
+After-hours emergency instructions shall remain configurable per clinic.
+
+9.6 Medical Safety Restrictions
+EH-10
+
+The AI shall not provide:
+
+diagnosis
+medication instructions
+treatment plans
+EH-11
+
+The AI shall avoid pretending medical authority.
+
+9.7 Emergency Logging
+EH-12
+
+Emergency interactions shall generate priority operational logs.
+
+EH-13
+
+Emergency escalation events shall notify clinic staff.
+
+10. Internal Scheduling Engine Functional Requirements
+10.1 Scheduling Engine Overview
+
+The scheduling engine shall function as centralized scheduling authority for the platform.
+
+The engine shall:
+
+validate appointment logic
+calculate availability
+prevent conflicts
+manage scheduling rules
+10.2 Source of Truth
+SE-1
+
+The internal scheduler shall operate as primary scheduling source of truth.
+
+SE-2
+
+External calendar systems shall operate as synchronization targets only.
+
+10.3 Availability Calculation
+SE-3
+
+Availability calculations shall consider:
+
+clinic hours
+provider schedules
+existing appointments
+blocked slots
+appointment duration
+emergency slot reservations
+booking buffers
+SE-4
+
+Availability calculations shall occur in real-time.
+
+10.4 Provider Scheduling
+SE-5
+
+Providers shall support configurable working schedules.
+
+SE-6
+
+Provider schedules shall support:
+
+recurring availability
+exceptions
+leave periods
+blocked dates
+10.5 Appointment Duration Rules
+SE-7
+
+Each service type shall support configurable duration settings.
+
+SE-8
+
+The system shall support:
+
+provider-specific duration overrides
+new patient extended duration rules
+multi-service duration calculations
+10.6 Scheduling Buffers
+SE-9
+
+The engine shall support configurable appointment buffers.
+
+Example
+15-minute preparation gap between appointments
+SE-10
+
+Buffer periods shall participate in conflict validation.
+
+10.7 Conflict Prevention
+SE-11
+
+The scheduling engine shall prevent overlapping appointments.
+
+SE-12
+
+Appointment creation shall fail when scheduling conflicts exist.
+
+SE-13
+
+Conflict validation shall execute transactionally.
+
+10.8 Emergency Slot Reservation
+SE-14
+
+The engine shall support reserved emergency slots.
+
+SE-15
+
+Emergency slots shall remain hidden from standard booking workflows.
+
+10.9 Same-Day Booking Rules
+SE-16
+
+The system shall support configurable same-day booking policies.
+
+SE-17
+
+Policies may vary per:
+
+clinic
+provider
+service type
+10.10 Timezone Handling
+SE-18
+
+The scheduling engine shall support clinic timezone configuration.
+
+SE-19
+
+Appointment calculations shall remain timezone-consistent.
+
+10.11 Scheduling Failure Recovery
+SE-20
+
+Failed scheduling operations shall rollback incomplete state changes.
+
+SE-21
+
+Synchronization failures shall not corrupt internal scheduling records.
+
+SE-22
+
+The engine shall maintain operational audit logs for all scheduling changes.
+
+
+11. Google Calendar Synchronization Functional Requirements
+11.1 Calendar Sync Overview
+
+The platform shall support synchronization between the internal scheduling engine and connected Google Calendar accounts.
+
+Google Calendar integration shall function as:
+
+synchronization layer
+NOT
+primary scheduling authority
+
+The internal scheduling engine shall remain source of truth.
+
+11.2 Google Account Connection
+GC-1
+
+Clinic administrators shall connect Google accounts through secure OAuth authentication.
+
+GC-2
+
+The system shall support clinic-specific calendar connections.
+
+GC-3
+
+OAuth tokens shall be securely stored and encrypted.
+
+11.3 Appointment Synchronization
+GC-4
+
+Successful appointment creation shall generate corresponding Google Calendar events.
+
+GC-5
+
+Appointment updates shall synchronize with connected calendars.
+
+GC-6
+
+Cancelled appointments shall remove or update synchronized calendar events.
+
+11.4 Calendar Event Structure
+GC-7
+
+Synchronized events shall include:
+
+patient name
+appointment type
+provider
+appointment duration
+clinic information
+GC-8
+
+Sensitive notes shall remain configurable according to clinic privacy settings.
+
+11.5 Synchronization Reliability
+GC-9
+
+Synchronization failures shall trigger retry workflows.
+
+GC-10
+
+Synchronization failures shall generate operational logs.
+
+GC-11
+
+Temporary synchronization failures shall not block internal appointment creation.
+
+11.6 Conflict Handling
+GC-12
+
+External calendar modifications shall not automatically override internal scheduler data.
+
+GC-13
+
+Conflict resolution policies shall prioritize internal scheduler integrity.
+
+11.7 Multi-Provider Calendar Support
+GC-14
+
+The system shall support provider-specific calendar mapping.
+
+GC-15
+
+Multiple providers may synchronize with separate Google Calendars.
+
+12. Dashboard Functional Requirements
+12.1 Dashboard Overview
+
+The platform shall provide a web-based dashboard for:
+
+clinic administration
+appointment management
+AI configuration
+transcript review
+analytics monitoring
+12.2 Authentication
+DB-1
+
+Dashboard access shall require authenticated login.
+
+DB-2
+
+Role-based access permissions shall restrict unauthorized functionality access.
+
+DB-3
+
+Session expiration policies shall support configurable security timeouts.
+
+12.3 Dashboard Navigation
+DB-4
+
+Dashboard navigation shall support:
+
+appointments
+providers
+transcripts
+analytics
+clinic settings
+AI configuration
+12.4 Appointment Management Interface
+DB-5
+
+Users shall view appointment schedules in calendar-style interface.
+
+DB-6
+
+Appointment filtering shall support:
+
+provider
+date
+appointment type
+patient
+DB-7
+
+Authorized users shall manually:
+
+create appointments
+modify appointments
+cancel appointments
+12.5 Provider Management
+DB-8
+
+Clinic administrators shall manage provider records.
+
+DB-9
+
+Provider configuration shall support:
+
+working hours
+supported services
+appointment duration overrides
+blocked periods
+12.6 Service Management
+DB-10
+
+Clinic administrators shall configure service catalog.
+
+DB-11
+
+Service configuration shall support:
+
+duration
+buffers
+provider compatibility
+availability restrictions
+12.7 Transcript Management
+DB-12
+
+The dashboard shall display AI-generated conversation transcripts.
+
+DB-13
+
+Transcript records shall include:
+
+caller number
+timestamp
+call duration
+detected intent
+escalation status
+DB-14
+
+Transcript search functionality shall support:
+
+patient name
+phone number
+date
+intent type
+12.8 Analytics Dashboard
+DB-15
+
+The dashboard shall provide operational analytics.
+
+Supported Metrics
+total calls
+booked appointments
+cancellations
+emergency escalations
+after-hours calls
+transfer requests
+DB-16
+
+Analytics shall support date-range filtering.
+
+12.9 AI Configuration Management
+DB-17
+
+Clinic administrators shall configure AI operational settings.
+
+Supported Configurations
+greeting messages
+escalation thresholds
+transfer behavior
+language preferences
+emergency instructions
+12.10 FAQ Knowledge Base Management
+DB-18
+
+Clinic administrators shall manage FAQ entries.
+
+DB-19
+
+FAQ records shall support bilingual content.
+
+12.11 Notification Management
+DB-20
+
+The dashboard shall display operational notifications.
+
+Notification Examples
+emergency calls
+failed bookings
+synchronization failures
+callback requests
+12.12 Multi-Clinic Architecture
+DB-21
+
+The dashboard architecture shall support multi-tenant clinic isolation.
+
+DB-22
+
+Clinic users shall access only authorized clinic data.
+
+13. AI Conversation Orchestrator Functional Requirements
+13.1 Conversation Engine Overview
+
+The conversation orchestrator shall manage:
+
+conversational flow
+state transitions
+intent handling
+tool execution
+escalation logic
+
+The orchestrator shall operate independently from scheduling validation systems.
+
+13.2 Intent Classification
+AIOR-1
+
+The system shall classify caller intent in real time.
+
+Supported Intents
+booking
+rescheduling
+cancellation
+FAQ inquiry
+emergency
+transfer request
+AIOR-2
+
+Intent classification shall support conversational variations and incomplete phrasing.
+
+AIOR-3
+
+The system shall support dynamic intent switching during active calls.
+
+13.3 State Management
+AIOR-4
+
+The orchestrator shall maintain structured conversation state.
+
+AIOR-5
+
+State tracking shall include:
+
+current workflow
+patient verification status
+selected services
+selected slots
+pending confirmations
+AIOR-6
+
+State recovery shall survive conversational interruptions.
+
+13.4 Tool Invocation Framework
+AIOR-7
+
+The AI shall interact with backend systems exclusively through approved tool interfaces.
+
+AIOR-8
+
+The AI shall not directly modify database records.
+
+AIOR-9
+
+Tool calls shall support structured request/response formats.
+
+13.5 Conversation Recovery
+AIOR-10
+
+The AI shall recover incomplete workflows gracefully.
+
+AIOR-11
+
+Repeated low-confidence interactions shall trigger escalation.
+
+AIOR-12
+
+Conversation loops shall trigger recovery or escalation workflows.
+
+13.6 Hallucination Prevention
+AIOR-13
+
+The AI shall not invent:
+
+appointment availability
+clinic policies
+insurance coverage
+provider schedules
+AIOR-14
+
+Operational information shall originate from validated backend systems only.
+
+13.7 Interruption Handling
+AIOR-15
+
+The system shall support real-time interruption detection.
+
+AIOR-16
+
+The AI shall stop speaking immediately when interrupted.
+
+AIOR-17
+
+Conversation context shall remain preserved after interruptions.
+
+13.8 Emergency Prioritization
+AIOR-18
+
+Emergency detection shall override non-critical conversational workflows.
+
+AIOR-19
+
+Emergency conversations shall prioritize escalation speed over conversational detail.
+
+13.9 Human Escalation
+AIOR-20
+
+The AI shall support human transfer requests at all times.
+
+AIOR-21
+
+The AI shall escalate when confidence thresholds fail.
+
+13.10 Conversation Logging
+AIOR-22
+
+Conversation events shall generate structured operational logs.
+
+AIOR-23
+
+Logged events shall include:
+
+detected intents
+tool calls
+escalation triggers
+workflow transitions
+14. Notification & Escalation Functional Requirements
+14.1 Notification Overview
+
+The platform shall generate operational notifications for important system events.
+
+14.2 Notification Events
+NT-1
+
+Notifications shall support:
+
+emergency calls
+failed bookings
+synchronization failures
+callback requests
+transfer failures
+14.3 Emergency Notifications
+NT-2
+
+Emergency escalation shall generate high-priority notifications.
+
+NT-3
+
+Emergency notifications shall include:
+
+caller information
+detected urgency
+timestamp
+transcript summary
+14.4 Callback Request Notifications
+NT-4
+
+Missed transfer attempts shall generate callback requests.
+
+NT-5
+
+Callback requests shall include:
+
+patient information
+requested topic
+timestamp
+14.5 Failure Notifications
+NT-6
+
+Critical operational failures shall generate administrative alerts.
+
+Failure Examples
+synchronization failures
+scheduling validation failures
+AI service interruptions
+14.6 Notification Logging
+NT-7
+
+Notification delivery attempts shall generate audit logs.
+
+15. Audit Logging & Monitoring Functional Requirements
+15.1 Logging Overview
+
+The platform shall maintain operational logs for:
+
+debugging
+auditing
+compliance review
+analytics
+operational monitoring
+15.2 Appointment Audit Logging
+LOG-1
+
+Appointment actions shall generate audit records.
+
+Logged Actions
+appointment creation
+appointment updates
+cancellations
+scheduling conflicts
+15.3 Conversation Logging
+LOG-2
+
+Conversation workflows shall generate structured event logs.
+
+LOG-3
+
+Conversation logs shall include:
+
+detected intents
+escalation events
+workflow transitions
+tool execution history
+15.4 System Monitoring
+LOG-4
+
+The platform shall support infrastructure health monitoring.
+
+LOG-5
+
+Monitoring metrics shall include:
+
+API failures
+latency spikes
+synchronization failures
+call processing errors
+15.5 Security Logging
+LOG-6
+
+Authentication events shall generate security logs.
+
+LOG-7
+
+Unauthorized access attempts shall generate security alerts.
+
+15.6 Log Retention
+LOG-8
+
+Log retention duration shall remain configurable according to clinic policies.
+
+LOG-9
+
+Archived logs shall remain accessible for operational review.
+
+16. Error Handling & Recovery Functional Requirements
+16.1 Error Handling Overview
+
+The platform shall implement structured recovery workflows for operational failures.
+
+16.2 AI Failure Recovery
+ERR-1
+
+Repeated AI misunderstandings shall trigger escalation workflows.
+
+ERR-2
+
+The AI shall acknowledge uncertainty before escalation.
+
+16.3 Scheduling Failure Recovery
+ERR-3
+
+Failed scheduling operations shall rollback incomplete transactions.
+
+ERR-4
+
+Synchronization failures shall not corrupt internal scheduling data.
+
+16.4 Integration Failure Recovery
+ERR-5
+
+Temporary external API failures shall trigger retry workflows.
+
+ERR-6
+
+Critical integration outages shall generate operational alerts.
+
+16.5 Call Recovery
+ERR-7
+
+Unexpected call disconnections shall preserve operational logs.
+
+ERR-8
+
+Incomplete workflows may generate callback requests according to clinic configuration.
+
+16.6 Data Integrity Protection
+ERR-9
+
+Critical operations shall use transactional validation mechanisms.
+
+ERR-10
+
+The platform shall prevent partial scheduling state corruption.
+17. Security Functional Requirements
+17.1 Security Overview
+
+The platform shall implement security controls to protect:
+
+patient information
+appointment data
+clinic operational data
+authentication systems
+conversation records
+
+Security implementation shall prioritize:
+
+access control
+encrypted communication
+auditability
+tenant isolation
+17.2 Authentication Security
+SEC-1
+
+Dashboard access shall require authenticated login credentials.
+
+SEC-2
+
+Authentication sessions shall expire after configurable inactivity periods.
+
+SEC-3
+
+The platform shall support secure password storage using industry-standard hashing methods.
+
+SEC-4
+
+Repeated failed login attempts shall trigger rate-limiting protections.
+
+17.3 Role-Based Access Control (RBAC)
+SEC-5
+
+System functionality shall enforce role-based permissions.
+
+SEC-6
+
+Users shall access only authorized operational data.
+
+SEC-7
+
+Clinic users shall not access data belonging to other clinics.
+
+17.4 Data Encryption
+SEC-8
+
+Sensitive data shall be encrypted during transmission.
+
+SEC-9
+
+Stored authentication credentials shall remain encrypted or hashed securely.
+
+SEC-10
+
+OAuth tokens shall remain encrypted at rest.
+
+17.5 API Security
+SEC-11
+
+Internal APIs shall require authenticated requests.
+
+SEC-12
+
+Unauthorized API access attempts shall generate security logs.
+
+SEC-13
+
+API request validation shall prevent malformed or unauthorized requests.
+
+17.6 Tenant Isolation
+SEC-14
+
+The system shall enforce multi-tenant clinic isolation.
+
+SEC-15
+
+Tenant isolation shall apply to:
+
+appointments
+transcripts
+providers
+analytics
+knowledge base content
+17.7 Audit Security
+SEC-16
+
+Critical operational actions shall generate immutable audit logs.
+
+SEC-17
+
+Audit logs shall include:
+
+user identity
+timestamp
+action type
+affected entity
+17.8 Administrative Security
+SEC-18
+
+Super admin functionality shall remain restricted to authorized platform operators only.
+
+SEC-19
+
+Administrative privilege escalation events shall generate audit records.
+
+17.9 Data Retention Security
+SEC-20
+
+Data retention policies shall remain configurable according to clinic requirements.
+
+SEC-21
+
+Deleted operational records shall remain auditable when legally required.
+
+18. Performance & Scalability Functional Requirements
+18.1 Performance Overview
+
+The platform shall support real-time conversational interaction while maintaining operational responsiveness and scheduling consistency.
+
+18.2 Conversational Performance
+PERF-1
+
+AI response generation shall support conversationally acceptable latency.
+
+PERF-2
+
+Voice interruptions shall process in real time.
+
+PERF-3
+
+Scheduling validation operations shall execute fast enough to maintain conversational flow.
+
+18.3 Concurrent Operations
+PERF-4
+
+The platform shall support concurrent inbound call processing.
+
+PERF-5
+
+Concurrent scheduling requests shall maintain transactional consistency.
+
+18.4 Scalability Requirements
+PERF-6
+
+The architecture shall support onboarding multiple clinics without major redesign.
+
+PERF-7
+
+System scaling shall support increasing:
+
+call volume
+transcript volume
+scheduling operations
+provider records
+18.5 Queue & Background Processing
+PERF-8
+
+Background operations shall support asynchronous processing.
+
+Example Background Tasks
+calendar synchronization
+notifications
+transcript processing
+retry workflows
+PERF-9
+
+Background task failures shall support retry mechanisms.
+
+18.6 Database Performance
+PERF-10
+
+The scheduling engine shall support indexed scheduling queries.
+
+PERF-11
+
+Database architecture shall support scalable appointment retrieval performance.
+
+18.7 Monitoring & Metrics
+PERF-12
+
+Infrastructure monitoring shall track:
+
+API latency
+scheduling latency
+AI response performance
+synchronization failures
+19. Database Functional Requirements
+19.1 Database Overview
+
+The platform shall use centralized relational database architecture supporting:
+
+multi-tenant clinic operations
+scheduling consistency
+operational auditability
+conversational state tracking
+19.2 Core Database Entities
+
+The system shall support the following core entities:
+
+Clinic
+
+Stores clinic operational information.
+
+User
+
+Stores dashboard authentication users.
+
+Provider
+
+Stores dentist/provider records.
+
+Patient
+
+Stores patient information.
+
+Service
+
+Stores appointment service definitions.
+
+Appointment
+
+Stores scheduling records.
+
+Conversation
+
+Stores call sessions.
+
+Transcript
+
+Stores AI-generated conversation transcripts.
+
+Notification
+
+Stores operational notifications.
+
+AuditLog
+
+Stores operational audit records.
+
+19.3 Multi-Tenant Structure
+DBR-1
+
+All operational entities shall support clinic-level tenant isolation.
+
+DBR-2
+
+Tenant relationships shall remain enforced through foreign-key relationships.
+
+19.4 Appointment Data Integrity
+DBR-3
+
+Appointment records shall support transactional consistency.
+
+DBR-4
+
+Scheduling conflicts shall be prevented through database-level validation logic where applicable.
+
+19.5 Transcript Storage
+DBR-5
+
+Conversation transcripts shall remain linked to associated call sessions.
+
+DBR-6
+
+Transcript records shall support searchable indexing.
+
+19.6 Audit Logging Storage
+DBR-7
+
+Audit logs shall remain append-only where operationally required.
+
+DBR-8
+
+Audit records shall support timestamp-based retrieval.
+
+19.7 Soft Delete Support
+DBR-9
+
+Operational entities may support soft-delete behavior for audit preservation.
+
+20. External API Functional Requirements
+20.1 API Overview
+
+The platform shall expose internal service APIs supporting:
+
+scheduling operations
+AI tool execution
+dashboard operations
+integration workflows
+20.2 Scheduling APIs
+API-1
+
+Scheduling APIs shall support:
+
+availability lookup
+appointment creation
+appointment update
+cancellation
+API-2
+
+Scheduling APIs shall validate:
+
+provider availability
+duration conflicts
+booking restrictions
+
+before operation execution.
+
+20.3 AI Tool APIs
+API-3
+
+The conversation orchestrator shall interact with backend systems through tool APIs.
+
+Example Tool APIs
+check_availability()
+create_appointment()
+cancel_appointment()
+faq_lookup()
+transfer_call()
+API-4
+
+Tool APIs shall return structured responses only.
+
+20.4 Authentication APIs
+API-5
+
+Dashboard authentication shall support secure login workflows.
+
+API-6
+
+Authentication APIs shall support session validation.
+
+20.5 Calendar Sync APIs
+API-7
+
+Google synchronization services shall support:
+
+create event
+update event
+delete event
+
+operations.
+
+20.6 Error Response Standards
+API-8
+
+API failures shall return structured error responses.
+
+API-9
+
+Error responses shall avoid exposing sensitive system information.
+
+21. Deployment & Environment Functional Requirements
+21.1 Deployment Overview
+
+The platform shall support cloud-based deployment architecture.
+
+21.2 Environment Separation
+DEP-1
+
+Separate environments shall exist for:
+
+development
+staging
+production
+DEP-2
+
+Environment configurations shall remain isolated.
+
+21.3 Configuration Management
+DEP-3
+
+Sensitive configuration values shall remain environment-protected.
+
+DEP-4
+
+API credentials shall not remain hardcoded within source code.
+
+21.4 Infrastructure Monitoring
+DEP-5
+
+Production infrastructure shall support operational monitoring.
+
+DEP-6
+
+Critical infrastructure failures shall generate administrative alerts.
+
+21.5 Backup & Recovery
+DEP-7
+
+Operational database backups shall execute regularly.
+
+DEP-8
+
+Backup recovery procedures shall support restoration of:
+
+appointments
+transcripts
+operational logs
+22. QA & Testing Functional Requirements
+22.1 Testing Overview
+
+The platform shall support structured QA workflows for:
+
+AI conversations
+scheduling operations
+integrations
+dashboard functionality
+22.2 Scheduling Validation Testing
+QA-1
+
+Scheduling tests shall validate:
+
+conflict prevention
+duration calculations
+provider availability
+buffer handling
+22.3 AI Conversation Testing
+QA-2
+
+Conversation testing shall include:
+
+interruption handling
+intent switching
+escalation behavior
+multilingual interactions
+22.4 Emergency Workflow Testing
+QA-3
+
+Emergency scenarios shall validate:
+
+emergency detection
+escalation speed
+transfer workflows
+22.5 Integration Testing
+QA-4
+
+Integration testing shall validate:
+
+Google Calendar synchronization
+telephony workflows
+AI tool execution
+notification delivery
+22.6 Failure Recovery Testing
+QA-5
+
+Failure testing shall validate:
+
+rollback logic
+retry workflows
+synchronization recovery
+escalation handling
+23. Acceptance Criteria
+23.1 Production Readiness Criteria
+
+The platform shall satisfy the following conditions before production deployment.
+
+ACPT-1
+
+The AI shall successfully handle appointment booking workflows without hallucinated availability.
+
+ACPT-2
+
+The scheduling engine shall prevent double-booking conflicts.
+
+ACPT-3
+
+Google Calendar synchronization shall complete reliably.
+
+ACPT-4
+
+Emergency escalation workflows shall function correctly.
+
+ACPT-5
+
+Human transfer workflows shall operate successfully.
+
+ACPT-6
+
+English and French conversations shall complete successfully.
+
+ACPT-7
+
+Dashboard authentication and role permissions shall operate correctly.
+
+ACPT-8
+
+Operational audit logs shall record critical workflows.
+
+ACPT-9
+
+System monitoring and failure alerts shall function correctly.
+
+24. Conclusion
+
+This Functional Requirements Document defines the operational and engineering behavior of the AI Dental Receptionist Platform.
+
+The FRD establishes:
+
+deterministic scheduling workflows
+conversational AI constraints
+operational safety mechanisms
+integration architecture
+dashboard behavior
+security and scalability requirements
+
+The platform architecture intentionally prioritizes:
+
+scheduling reliability
+operational safety
+conversational clarity
+modular scalability
+workflow determinism
+
+The initial implementation scope remains intentionally controlled to ensure:
+
+faster deployment
+reduced engineering complexity
+improved operational reliability
+realistic production readiness
+
+

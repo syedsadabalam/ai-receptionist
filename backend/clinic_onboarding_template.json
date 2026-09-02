@@ -1,0 +1,20 @@
+{
+    "name": "Sunshine Dental Care",
+    "address": "456 Bright Ave, Vancouver, BC",
+    "phone": "604-555-9876",
+    "calendar_id": "sunshine.dental@gmail.com",
+    "providers": ["Dr. Emily Ray", "Dr. Marcus Chen"],
+    "services": [
+        {"name": "Teeth Whitening", "duration": 45},
+        {"name": "Root Canal", "duration": 90},
+        {"name": "General Checkup", "duration": 30}
+    ],
+    "faqs": {
+        "parking": "We have 5 dedicated spots in the front of the clinic.",
+        "insurance": "We are a preferred provider for Sun Life and Manulife.",
+        "emergency": "For after-hours emergencies, call our paging service at 604-555-0000."
+    },
+    "vapi_key": "21f87301-15b3-48d7-90a2-f6757af366fd",
+    "public_url": "https://strong-zebras-dress.loca.lt",
+    "twilio_number": "+19045872021"
+}

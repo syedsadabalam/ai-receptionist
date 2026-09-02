@@ -1,0 +1,20 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Environment — NEVER commit secrets
+.env
+.env.local
+
+# Service account keys
+google-key.json
+
+# Logs
+*.log
+backend.log
+
+# DB files
+*.db
+*.sqlite
